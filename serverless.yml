@@ -1,7 +1,7 @@
 # TODO: Change the name of the org 
 org: trungphan99
-app: serverless-todo-app-5
-service: serverless-todo-app-5
+app: serverless-todo-app-5-secver
+service: serverless-todo-app-5-secver
 frameworkVersion: '3.30.1'
 
 plugins:
@@ -16,6 +16,7 @@ provider:
 
   stage: ${opt:stage, 'dev'}
   region: ${opt:region, 'us-east-1'}
+  profile: default
 
   tracing:
     lambda: true
@@ -26,9 +27,9 @@ provider:
   environment:
     TODOS_TABLE: Serverless-c5-todo-app-5-${self:provider.stage}
     TODOS_CREATED_AT_INDEX: CreatedAtIndex
-    ATTACHMENT_S3_BUCKET: serverless-c5-todo-app-5-images-${self:provider.stage}
+    ATTACHMENT_S3_BUCKET: serverless-c5-todo-app-5-images-secver-${self:provider.stage}
     SIGNED_URL_EXPIRATION: 300
-    PROJECT_NAME: serverless-todo-app-5
+    PROJECT_NAME: serverless-todo-app-5-secver
     INDEX_NAME: ${self:provider.environment.TODOS_CREATED_AT_INDEX}
 
   logs:
@@ -52,6 +53,7 @@ functions:
       - httpApi:
           path: /
           method: get
+    existing: true
 
   Auth:
     handler: src/lambda/auth/auth0Authorizer.handler
@@ -80,6 +82,7 @@ functions:
           method: post
           path: todos
           cors: true
+    existing: true
   #         authorizer: Auth
   #         request:
   #           schemas:
@@ -192,6 +195,11 @@ resources:
       Type: AWS::S3::Bucket
       Properties:
         BucketName: ${self:provider.environment.ATTACHMENT_S3_BUCKET}
+        PublicAccessBlockConfiguration:
+          BlockPublicAcls: false
+          BlockPublicPolicy: false
+          IgnorePublicAcls: false
+          RestrictPublicBuckets: false
         CorsConfiguration:
           CorsRules:
             - AllowedOrigins:
